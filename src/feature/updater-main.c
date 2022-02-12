@@ -116,10 +116,14 @@ int main(int argc, char* argv[]) {
 	const char* bin = mUpdateGetCommand(&config);
 	mCoreConfigDeinit(&config);
 	if (ok == 0) {
-		const char* argv[] = { bin, NULL };
 #ifdef _WIN32
+		char qbin[PATH_MAX + 2] = {0};
+		// Windows is a bad operating system
+		snprintf(qbin, sizeof(qbin), "\"%s\"", bin);
+		const char* argv[] = { qbin, NULL };
 		_execv(bin, argv);
-#elif defined(_POSIX_C_SOURCE)
+#elif defined(_POSIX_C_SOURCE) || defined(__APPLE__)
+		const char* argv[] = { bin, NULL };
 		execv(bin, argv);
 #endif
 	}
