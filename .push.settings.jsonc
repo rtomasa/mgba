@@ -1,0 +1,29 @@
+// Push settings file - first generated on Mon May 10 2021 23:22:40 GMT+0200 (hora de verano de Europa central).
+// Note: Optional items are commented out and can be uncommented if you wish to set them.
+// Preset environments are: prod, dev, stage. Custom environments (and their colours) can be created in settings.
+{
+	"env": "RPi",
+	"RPi": {
+		"service": "SFTP",
+		"options": {
+			// "timeZoneOffset": 0,
+			// "testCollisionTimeDiffs": true,
+			"collisionUploadAction": "overwrite",
+			// "collisionDownloadAction": null,
+			// "followSymlinks": false,
+			"reminder": false,
+			// "reminderTimeout": null,
+			"host": "192.168.0.25",
+			"port": 22,
+			"username": "pi",
+			"password": "rgbpi",
+			// "privateKey": "",
+			// "keyPassphrase": "",
+			"root": "/home/pi/.dev/mgba"
+			// "keepaliveInterval": 3000,
+			// "debug": false,
+			// "fileMode": "",
+			// "sshGateway": null
+		}
+	}
+}
