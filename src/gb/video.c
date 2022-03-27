@@ -40,20 +40,6 @@ static void _endMode2(struct mTiming* timing, void* context, uint32_t cyclesLate
 static void _endMode3(struct mTiming* timing, void* context, uint32_t cyclesLate);
 static void _updateFrameCount(struct mTiming* timing, void* context, uint32_t cyclesLate);
 
-/*static const uint16_t _defaultBorderPalette[16] = {
-	0x0000,
-	0x7FDE,
-	0x7FFF,
-	0x739A,
-	0x2929,
-	0x24E7,
-	0x1CC6,
-	0x0400,
-	0x514A,
-	0x3907,
-	0x28C5,
-};*/
-
 /* Color palette in BGR555 Big Endian */
 static const uint16_t _defaultBorderPalette[16] = {
 	0x0000,
