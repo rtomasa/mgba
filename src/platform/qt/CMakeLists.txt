@@ -251,6 +251,7 @@ endif()
 if(ENABLE_SCRIPTING)
 	list(APPEND SOURCE_FILES
 		ScriptingController.cpp
+		ScriptingTextBuffer.cpp
 		ScriptingView.cpp)
 
 	list(APPEND UI_FILES
