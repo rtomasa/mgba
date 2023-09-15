@@ -4,7 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 #include <mgba/core/config.h>
+#include <mgba/core/version.h>
 #include <mgba/feature/updater.h>
+#include <mgba-util/string.h>
 #include <mgba-util/vfs.h>
 
 #include <errno.h>
@@ -16,6 +18,7 @@
 #include <direct.h>
 #include <io.h>
 #include <process.h>
+#include <synchapi.h>
 
 #define mkdir(X, Y) _mkdir(X)
 #elif defined(_POSIX_C_SOURCE)
@@ -36,16 +39,36 @@ bool extractArchive(struct VDir* archive, const char* root, bool prefix) {
 	while ((vde = archive->listNext(archive))) {
 		struct VFile* vfIn;
 		struct VFile* vfOut;
-		const char* fname = strchr(vde->name(vde), '/');
-		if (!fname) {
+		const char* fname;
+		if (prefix) {
+			fname = strchr(vde->name(vde), '/');
+			if (!fname) {
+				continue;
+			}
+			snprintf(path, sizeof(path), "%s/%s", root, &fname[1]);
+		} else {
+			fname = vde->name(vde);
+			snprintf(path, sizeof(path), "%s/%s", root, fname);
+		}
+		if (fname[0] == '.') {
 			continue;
 		}
-		snprintf(path, sizeof(path), "%s/%s", root, &fname[1]);
 		switch (vde->type(vde)) {
 		case VFS_DIRECTORY:
 			fprintf(logfile, "mkdir   %s\n", fname);
 			if (mkdir(path, 0755) < 0 && errno != EEXIST) {
 				return false;
+			}
+			if (!prefix) {
+				struct VDir* subdir = archive->openDir(archive, fname);
+				if (!subdir) {
+					return false;
+				}
+				if (!extractArchive(subdir, path, false)) {
+					subdir->close(subdir);
+					return false;
+				}
+				subdir->close(subdir);
 			}
 			break;
 		case VFS_FILE:
@@ -54,7 +77,11 @@ bool extractArchive(struct VDir* archive, const char* root, bool prefix) {
 			errno = 0;
 			vfOut = VFileOpen(path, O_WRONLY | O_CREAT | O_TRUNC);
 			if (!vfOut && errno == EACCES) {
+#ifdef _WIN32
+				Sleep(1000);
+#else
 				sleep(1);
+#endif
 				vfOut = VFileOpen(path, O_WRONLY | O_CREAT | O_TRUNC);
 			}
 			if (!vfOut) {
@@ -82,6 +109,7 @@ int main(int argc, char* argv[]) {
 	UNUSED(argv);
 	struct mCoreConfig config;
 	char updateArchive[PATH_MAX] = {0};
+	char bin[PATH_MAX] = {0};
 	const char* root;
 	int ok = 1;
 
@@ -97,6 +125,11 @@ int main(int argc, char* argv[]) {
 	} else if (access(root, W_OK)) {
 		fputs("Cannot write to update path\n", logfile);
 	} else {
+#ifdef __APPLE__
+		char subdir[PATH_MAX];
+		char devpath[PATH_MAX] = {0};
+		bool needsUnmount = false;
+#endif
 		bool isPortable = mCoreConfigIsPortable();
 		const char* extension = mUpdateGetArchiveExtension(&config);
 		struct VDir* archive = NULL;
@@ -231,7 +264,6 @@ int main(int argc, char* argv[]) {
 			unlink(portableIni);
 		}
 	}
-	const char* bin = mUpdateGetCommand(&config);
 	mCoreConfigDeinit(&config);
 	fclose(logfile);
 	if (ok == 0) {
