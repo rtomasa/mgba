@@ -76,7 +76,24 @@ for i, tile in enumerate(tiledata):
 def printMem(mem):  
     for i in range(len(mem) // 16):
         line = mem[i * 16:(i + 1) * 16]
-        print(', '.join([f'0x{b:02X}' for b in line]) + ',')
+        print('\t' + ', '.join([f'0x{b:02X}' for b in line]) + ',')
+
+print('uint16_t palette[] = {');
+for rgb in palette[:16]:
+    print(f'\t0x{rgb:04X},')
+print('};')
+print()
+
+print('uint8_t tilemap[] = {');
+printMem(tilemapRaw)
+print('};')
+print()
+
+print('uint8_t chardata[] = {');
+printMem(chardataRaw)
+print('};')
+
+# CUSTOM CODE
 
 print('TILE MAP')
 print('='*8)
@@ -97,20 +114,3 @@ def to_bgr555(r,g,b):
 for (count, color) in im.convert('RGB').getcolors():
     c = to_bgr555(*color)
     print(c)
-
-        print('\t' + ', '.join([f'0x{b:02X}' for b in line]) + ',')
-
-print('uint16_t palette[] = {');
-for rgb in palette[:16]:
-    print(f'\t0x{rgb:04X},')
-print('};')
-print()
-
-print('uint8_t tilemap[] = {');
-printMem(tilemapRaw)
-print('};')
-print()
-
-print('uint8_t chardata[] = {');
-printMem(chardataRaw)
-print('};')
