@@ -1187,6 +1187,8 @@ static void _reloadSettings(void) {
 			model = GB_MODEL_SGB;
 		} else if (strcmp(var.value, "Game Boy Color") == 0) {
 			model = GB_MODEL_CGB;
+		} else if (strcmp(var.value, "Super Game Boy Color") == 0) {
+			model = GB_MODEL_SCGB;
 		} else if (strcmp(var.value, "Game Boy Advance") == 0) {
 			model = GB_MODEL_AGB;
 		} else {
@@ -1197,6 +1199,8 @@ static void _reloadSettings(void) {
 		mCoreConfigSetDefaultValue(&core->config, "gb.model", modelName);
 		mCoreConfigSetDefaultValue(&core->config, "sgb.model", modelName);
 		mCoreConfigSetDefaultValue(&core->config, "cgb.model", modelName);
+		mCoreConfigSetDefaultValue(&core->config, "cgb.hybridModel", modelName);
+		mCoreConfigSetDefaultValue(&core->config, "cgb.sgbModel", modelName);
 	}
 
 	var.key = "mgba_sgb_borders";
